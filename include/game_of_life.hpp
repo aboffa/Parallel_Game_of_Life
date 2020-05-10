@@ -174,18 +174,10 @@ public:
     }
 
     __attribute__((__always_inline__)) void compute_step(uint32_t i, uint32_t j) {
-        int8_t n_neighbours = 0;
-        n_neighbours += grid[i - 1][j - 1] + grid[i - 1][j] + grid[i - 1][j + 1];
-        n_neighbours += grid[i][j - 1] + grid[i][j + 1];
-        n_neighbours += grid[i + 1][j - 1] + grid[i + 1][j] + grid[i + 1][j + 1];
-
-        if (n_neighbours == 2) {
-            grid_tmp[i][j] = grid[i][j];
-        } else if (n_neighbours == 3) {
-            grid_tmp[i][j] = 1;
-        } else {
-            grid_tmp[i][j] = 0;
-        }
+        int16_t n_neighbours = grid[i - 1][j - 1] + grid[i - 1][j] + grid[i - 1][j + 1]
+                     + grid[i][j - 1] + grid[i][j + 1]
+                     + grid[i + 1][j - 1] + grid[i + 1][j] + grid[i + 1][j + 1];
+        grid_tmp[i][j] = (n_neighbours == 3 || (n_neighbours == 2) && grid[i][j]);
     }
 
     void reset() {
