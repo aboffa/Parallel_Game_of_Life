@@ -15,20 +15,26 @@ class Game_of_Life {
     uint32_t seed;
     float ratio;
 
-    std::vector<sdsl::bit_vector> grid;
-    std::vector<sdsl::bit_vector> grid_tmp;
+#ifdef TIME
+    using type = std::vector<uint16_t> ;
+#else
+    using type = sdsl::bit_vector ;
+#endif
+
+    std::vector<type> grid;
+    std::vector<type> grid_tmp;
 
 public:
     Game_of_Life(uint32_t _n, uint32_t _m, uint32_t _seed, float _ratio) : n(_n), m(_m), seed(_seed),
                                                                            ratio(_ratio) {
-        grid = *new std::vector<sdsl::bit_vector>(n);
+        grid = *new std::vector<type>(n);
         for (auto i = 0; i < n; ++i) {
-            grid[i] = *new sdsl::bit_vector(m, 0);
+            grid[i] = *new type(m, 0);
         }
 
-        grid_tmp = *new std::vector<sdsl::bit_vector>(n);
+        grid_tmp = *new std::vector<type>(n);
         for (auto i = 0; i < n; ++i) {
-            grid_tmp[i] = *new sdsl::bit_vector(m, 0);
+            grid_tmp[i] = *new type(m, 0);
         }
 
         std::mt19937 gen(seed);
@@ -43,14 +49,14 @@ public:
     }
 
     Game_of_Life(std::string &filename, uint32_t _n, uint32_t _m) : n(_n), m(_m) {
-        grid = *new std::vector<sdsl::bit_vector>(n);
+        grid = *new std::vector<type>(n);
         for (auto i = 0; i < n; ++i) {
-            grid[i] = *new sdsl::bit_vector(m, 0);
+            grid[i] = *new type(m, 0);
         }
 
-        grid_tmp = *new std::vector<sdsl::bit_vector>(n);
+        grid_tmp = *new std::vector<type>(n);
         for (auto i = 0; i < n; ++i) {
-            grid_tmp[i] = *new sdsl::bit_vector(m, 0);
+            grid_tmp[i] = *new type(m, 0);
         }
 
         std::ifstream file(filename);
@@ -174,10 +180,18 @@ public:
     }
 
     __attribute__((__always_inline__)) void compute_step(uint32_t i, uint32_t j) {
-        int16_t n_neighbours = grid[i - 1][j - 1] + grid[i - 1][j] + grid[i - 1][j + 1]
-                     + grid[i][j - 1] + grid[i][j + 1]
-                     + grid[i + 1][j - 1] + grid[i + 1][j] + grid[i + 1][j + 1];
-        grid_tmp[i][j] = (n_neighbours == 3 || (n_neighbours == 2) && grid[i][j]);
+        int8_t n_neighbours = 0;
+        n_neighbours += grid[i - 1][j - 1] + grid[i - 1][j] + grid[i - 1][j + 1];
+        n_neighbours += grid[i][j - 1] + grid[i][j + 1];
+        n_neighbours += grid[i + 1][j - 1] + grid[i + 1][j] + grid[i + 1][j + 1];
+
+        if (n_neighbours == 2) {
+            grid_tmp[i][j] = grid[i][j];
+        } else if (n_neighbours == 3) {
+            grid_tmp[i][j] = 1;
+        } else {
+            grid_tmp[i][j] = 0;
+        }
     }
 
     void reset() {
