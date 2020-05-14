@@ -6,7 +6,13 @@ My sequential and parallel implementation of the [Game of Life](https://en.wikip
   <img width="460" height="300" src="https://github.com/aboffa/Parallel_Game_of_Life/blob/master/plots/bigun.png">
 </p>
 
-I use the library [sdsl-lite](https://github.com/simongog/sdsl-lite) in order to use their bit-vector, just because I am used to use it.
+This parallel implementation can be *space optimized* or *time optimized*. 
+In order to have space optimization the "aliveness" of the cells is represented with bits. 
+In order to have time optimization the "aliveness" of the cells is represented with `uint_16`, this choice allows us to have vectorization. 
+
+These two modes are mutual exclusive, the space one is the default one. To switch to the time one the compilier flag `-DTIME` must be used. 
+
+I use the library [sdsl-lite](https://github.com/simongog/sdsl-lite) in order to use their bit-vector.
 To install it:
 
 ```
@@ -43,13 +49,13 @@ and they can continue the new iteration.
 I tested the sequential implementation and then the two parallel implementations for each number of worker between 1 and 64.
 
 
-Here there is the plots of the speed-up of the implementation with Open MP: 
+Here there is the plots of the speed-up of the implementation with Open MP and space optimization: 
 
 <p align="center">
   <img width="560" height="400" src="https://github.com/aboffa/Parallel_Game_of_Life/blob/master/plots/open-mp.png">
 </p>
 
-Here there is the plots of the speed-up of the implementation with Pthread: 
+Here there is the plots of the speed-up of the implementation with Pthread and space optimization: 
 
 <p align="center">
   <img width="560" height="400" src="https://github.com/aboffa/Parallel_Game_of_Life/blob/master/plots/pthread.png">
